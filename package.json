@@ -21,7 +21,7 @@
     "build": "webpack",
     "deploy": "tsc -p tsconfig-deploy.json",
     "postdeploy": "webpack --config webpack-deploy.config.js",
-    "start": "python -m http.server --directory dist 80"
+    "start": "python -m http.server --directory public 80"
   },
   "devDependencies": {
     "dotenv-webpack": "^1.7.0",

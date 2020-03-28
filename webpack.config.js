@@ -7,7 +7,7 @@ module.exports = {
     entry: './dist/index.js',
     output: {
         filename: 'main.js',
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'public'),
     },
     plugins: [
         new Dotenv({

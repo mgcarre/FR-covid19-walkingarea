@@ -7,11 +7,12 @@ export class Domicile {
     private adresse: string;
 
     public setCoords(lat: number, lng: number): void {
-        this.lat ?? lat;
-        this.lng ?? lng;
+        this.lat = lat;
+        this.lng = lng;
+        this.setDomicileToLocalStorage();
+        console.log(this);
     }
     public getCoords(): number[] {
-        this.setDomicileToLocalStorage();
         return this.getDomicileFromLocalStorage();
     }
     public async getAdresse() {

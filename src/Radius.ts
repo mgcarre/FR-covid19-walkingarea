@@ -15,7 +15,7 @@ export class Radius {
     constructor(map: Map) {
         this.map = map;
         this.center = [];
-        this.requestGeolocation();
+        this.addGeolocationControl();
     }
 
     public setCenterCoords(coords: number[]): Radius {
@@ -36,25 +36,19 @@ export class Radius {
             this.addPopup();
         }
     }
-    private async requestGeolocation(): Promise<PermissionDescriptor | void> {
-        return await navigator.permissions.query({ name: 'geolocation' })
-            .then(permissionStatus => {
-                if (permissionStatus.state === 'granted') {
-                    this.geoloc = new GeolocateControl({
-                        positionOptions: {
-                            enableHighAccuracy: true
-                        },
-                        trackUserLocation: true
-                    })
-                    this.addGeolocateControl();
-                    this.okGeoloc = true;
-                }
-                else {
-                    navigator.geolocation.getCurrentPosition(() => console.log('ok'), () => console.log('not ok'));
-                }
-            });
+    private addGeolocationControl(): void {
+
+        this.geoloc = new GeolocateControl({
+            positionOptions: {
+                enableHighAccuracy: true
+            },
+            trackUserLocation: true
+        })
+        this.addGeolocateControl();
+        this.okGeoloc = true;
     }
     public addGeolocEvent(element: Element): Radius {
+        console.log(this);
         if (this.okGeoloc === true) {
             this.geolocateElement = element;
             this.geoloc.on('geolocate', (e: IGeolocationPosition) => this.updateGeolocateElement(e.coords));
