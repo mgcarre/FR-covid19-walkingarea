@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map</title>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v1.9.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        head,
+        body {
+            margin: 0;
+        }
+
+        .map_box_container {
+            position: relative;
+            height: 100% !important;
+            width: 100% !important;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .overlay {
+            position: relative;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            background: #9E9E9E;
+            margin: .5em;
+            border-radius: .1em;
+            padding: .25em;
+            max-width: 25%;
+        }
+
+        .in-area {
+            position: relative;
+            bottom: 0;
+            z-index: 1000;
+            background: #9E9E9E;
+            margin: .5em;
+            border-radius: .1em;
+            padding: .25em;
+            max-width: 25%;
+        }
+
+        .in-green {
+            background-color: greenyellow;
+            color: green;
+        }
+
+        .in-red {
+            background-color: lightcoral;
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="overlay">
+        Cliquer sur la carte pour afficher la zone de tolérance
+    </div>
+    <div class="in-area">
+        Cliquez ensuite sur le bouton de géolocalisation...
+    </div>
+    <div id="map">
+
+    </div>
+</body>
+<script src="main.js"></script>
+
+</html>
