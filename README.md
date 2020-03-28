@@ -1,0 +1,1 @@
+# FR-covid19-walkingarea
