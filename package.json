@@ -19,6 +19,8 @@
   "scripts": {
     "watch": "tsc",
     "build": "webpack",
+    "deploy": "tsc -p tsconfig-deploy.json",
+    "postdeploy": "webpack --config webpack-deploy.config.js",
     "start": "python -m http.server --directory dist 80"
   },
   "devDependencies": {
