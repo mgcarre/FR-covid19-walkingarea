@@ -1,0 +1,29 @@
+{
+  "name": "FR-covid19-walkingarea",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mgcarre/FR-covid19-walkingarea.git"
+  },
+  "author": {
+    "name": "mgcarre",
+    "url": "https://github.com/mgcarre"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@turf/turf": "^5.1.6",
+    "@types/node": "^13.9.5",
+    "mapbox-gl": "^1.9.0"
+  },
+  "scripts": {
+    "build": "webpack",
+    "start": "python -m http.server --directory dist 80"
+  },
+  "devDependencies": {
+    "dotenv-webpack": "^1.7.0",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  }
+}

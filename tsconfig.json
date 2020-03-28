@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "watch": true,
+        "outDir": "./dist",
+        "module": "es6",
+        "esModuleInterop": true,
+        "target": "es6",
+        // "noImplicitAny": true,
+        "moduleResolution": "node",
+        "removeComments": true,
+    },
+    "include": [
+        "./src"
+    ]
+}
