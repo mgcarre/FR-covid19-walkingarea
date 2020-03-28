@@ -4,28 +4,25 @@ import { IGeolocationCoordinates } from "./IGeolocationCoordinates";
 import { IGeolocationPosition } from "./IGeolocationPosition";
 
 export class Radius {
-    public center: number[] = [];
+    public center: number[];
+    public geolocateElement: Element;
     private allowedZone: Feature<Polygon> = null;
     private map: Map;
     private zoneId = '1000mzone';
     private geoloc: GeolocateControl;
-    public geolocateElement: Element;
+    private okGeoloc: boolean;
 
     constructor(map: Map) {
         this.map = map;
-        this.geoloc = new GeolocateControl({
-            positionOptions: {
-                enableHighAccuracy: true
-            },
-            trackUserLocation: true
-        })
-        this.addGeolocateControl();
+        this.center = [];
+        this.requestGeolocation();
     }
 
     public setCenterCoords(coords: number[]): Radius {
         if (this.center.length === 0) {
             this.center = coords;
         }
+        this.map.flyTo({ center: this.center, zoom: 14 });
         return this;
     }
     public setAllowedZone(steps?: number, units?: Units): void;
@@ -39,9 +36,29 @@ export class Radius {
             this.addPopup();
         }
     }
+    private async requestGeolocation(): Promise<PermissionDescriptor | void> {
+        return await navigator.permissions.query({ name: 'geolocation' })
+            .then(permissionStatus => {
+                if (permissionStatus.state === 'granted') {
+                    this.geoloc = new GeolocateControl({
+                        positionOptions: {
+                            enableHighAccuracy: true
+                        },
+                        trackUserLocation: true
+                    })
+                    this.addGeolocateControl();
+                    this.okGeoloc = true;
+                }
+                else {
+                    navigator.geolocation.getCurrentPosition(() => console.log('ok'), () => console.log('not ok'));
+                }
+            });
+    }
     public addGeolocEvent(element: Element): Radius {
-        this.geolocateElement = element;
-        this.geoloc.on('geolocate', (e: IGeolocationPosition) => this.updateGeolocateElement(e.coords));
+        if (this.okGeoloc === true) {
+            this.geolocateElement = element;
+            this.geoloc.on('geolocate', (e: IGeolocationPosition) => this.updateGeolocateElement(e.coords));
+        }
         return this;
     }
     private updateGeolocateElement(geolocation: IGeolocationCoordinates): void {
