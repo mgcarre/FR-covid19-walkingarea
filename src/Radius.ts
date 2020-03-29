@@ -2,6 +2,7 @@ import { Feature, Polygon, circle, Coord, Units, point, pointsWithinPolygon } fr
 import { Map, Marker, Popup, GeolocateControl } from 'mapbox-gl';
 import { IGeolocationCoordinates } from "./IGeolocationCoordinates";
 import { IGeolocationPosition } from "./IGeolocationPosition";
+import Push from 'push.js';
 
 export class Radius {
     public center: number[];
@@ -36,8 +37,13 @@ export class Radius {
             this.addPopup();
         }
     }
+    public erasePolyon(): void {
+        if (this.map.getSource(this.zoneId)) {
+            this.map.removeLayer(this.zoneId)
+            this.map.removeSource(this.zoneId)
+        }
+    }
     private addGeolocationControl(): void {
-
         this.geoloc = new GeolocateControl({
             positionOptions: {
                 enableHighAccuracy: true
@@ -60,29 +66,39 @@ export class Radius {
             const center = point([geolocation.longitude, geolocation.latitude]);
             const elems = pointsWithinPolygon(center, this.allowedZone)
             if (elems.features.length === 0) {
-                console.log('hors zone');
-                this.geolocateElement.innerHTML = 'Hors Zone !';
-                this.geolocateElement.classList.remove('in-green');
-                this.geolocateElement.classList.add('in-red');
+                this.notifierOutOfBounds();
             } else {
-                this.geolocateElement.innerHTML = 'Dernière position OK';
-                this.geolocateElement.classList.remove('in-red');
-                this.geolocateElement.classList.add('in-green');
-                console.info('Position is in circle', elems);
+                this.notifierInBounds();
             }
         } else {
             this.geolocateElement.innerHTML = 'Pas de données';
         }
+    }
+    private notifierOutOfBounds(): void {
+        this.geolocateElement.innerHTML = 'Hors Zone !';
+        this.geolocateElement.classList.remove('in-green');
+        this.geolocateElement.classList.add('in-red');
+
+        Push.create("En dehors des limites", {
+            body: "L'appareil que vous utilisez indique que vous êtes sorti de la limite des 1000m fixé pour le confinement",
+            vibrate: true,
+            requireInteraction: true,
+            tag: 'notif-1000m'
+        });
+    }
+    private notifierInBounds(): void {
+        this.geolocateElement.innerHTML = 'Dernière position OK';
+        this.geolocateElement.classList.remove('in-red');
+        this.geolocateElement.classList.add('in-green');
+
+        Push.close('notif-1000m');
     }
     private addGeolocateControl(): void {
         this.map.addControl(this.geoloc);
     }
     private drawPolygon(): void {
         if (this.allowedZone != null) {
-            if (this.map.getSource(this.zoneId)) {
-                this.map.removeLayer(this.zoneId)
-                this.map.removeSource(this.zoneId)
-            }
+            this.erasePolyon();
             this.map.addSource(this.zoneId, {
                 'type': 'geojson',
                 'data': this.allowedZone

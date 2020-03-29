@@ -15,11 +15,17 @@ const map = new mapboxgl.Map({
 const radius = new Radius(map).addGeolocEvent(document.querySelector('.in-area'));
 const d = new Domicile();
 
+document.querySelector('#btn-d').addEventListener('click', () => {
+    if (confirm('Suppression de votre adresse ?')) {
+        d.eraseAdresse();
+        radius.erasePolyon();
+    }
+})
 map.on('click', (e) => {
     d.setCoords(e.lngLat.lat, e.lngLat.lng);
     radius.setCenterCoords(d.getCoords()).setAllowedZone();
     d.getAdresse().then(str => {
-        document.querySelector('.overlay').innerHTML = `Votre adresse a été définie sur :<br>${str}`;
+        document.querySelector('#overlay-body').innerHTML = `Votre adresse a été définie sur :<br>${str}`;
     });
 });
 

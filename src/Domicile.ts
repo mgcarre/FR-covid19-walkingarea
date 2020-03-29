@@ -21,6 +21,11 @@ export class Domicile {
         }
         return this.adresse;
     }
+    public eraseAdresse(): void {
+        this.lat = null;
+        this.lng = null;
+        localStorage.removeItem(this.LSKey);
+    }
     public async loadAdresse(): Promise<string> {
         const [lng, lat] = this.getDomicileFromLocalStorage();
         const url = `https://api-adresse.data.gouv.fr/reverse/?lon=${lng}&lat=${lat}`
