@@ -1,8 +1,9 @@
-import { Feature, Polygon, circle, Coord, Units, point, pointsWithinPolygon } from "@turf/turf";
+import { Feature, Polygon, circle, Units, point, centerOfMass, booleanPointInPolygon } from "@turf/turf";
 import { Map, Marker, Popup, GeolocateControl } from 'mapbox-gl';
 import { IGeolocationCoordinates } from "./IGeolocationCoordinates";
 import { IGeolocationPosition } from "./IGeolocationPosition";
 import Push from 'push.js';
+import restricted_areas from './restricted.json';
 
 export class Radius {
     public center: number[];
@@ -17,6 +18,7 @@ export class Radius {
         this.map = map;
         this.center = [];
         this.addGeolocationControl();
+        this.map.on('load', () => this.drawRestrictedAreas());
     }
 
     public setCenterCoords(coords: number[]): Radius {
@@ -64,8 +66,9 @@ export class Radius {
     private updateGeolocateElement(geolocation: IGeolocationCoordinates): void {
         if (this.center.length > 0) {
             const center = point([geolocation.longitude, geolocation.latitude]);
-            const elems = pointsWithinPolygon(center, this.allowedZone)
-            if (elems.features.length === 0) {
+            const elems = booleanPointInPolygon(center, this.allowedZone)
+            const dangerZoneElements = restricted_areas.features.find(obj => booleanPointInPolygon(center, obj as Feature<Polygon>));
+            if (elems == false || dangerZoneElements) {
                 this.notifierOutOfBounds();
             } else {
                 this.notifierInBounds();
@@ -80,7 +83,7 @@ export class Radius {
         this.geolocateElement.classList.add('in-red');
 
         Push.create("En dehors des limites", {
-            body: "L'appareil que vous utilisez indique que vous êtes sorti de la limite des 1000m fixé pour le confinement",
+            body: "L'appareil que vous utilisez indique que vous êtes sorti de la limite des 1000m fixés pour le confinement ou vous êtes entré dans une zone restreinte par arrêté préfectoral",
             vibrate: true,
             requireInteraction: true,
             tag: 'notif-1000m'
@@ -114,6 +117,40 @@ export class Radius {
                 }
             });
         }
+    }
+    private drawRestrictedAreas(): void {
+        const id = '_restricted_areas';
+        this.map.addSource(id, {
+            'type': 'geojson',
+            'data': restricted_areas
+        });
+        this.map.addLayer({
+            'id': id,
+            'type': 'fill',
+            'source': id,
+            'layout': {},
+            'paint': {
+                'fill-color': 'rgba(255,0,0, .7)',
+                'fill-outline-color': 'rgba(255,0,0, 1)'
+            }
+        });
+        const popup = new Popup({
+            closeButton: false,
+            closeOnClick: false
+        });
+        this.map.on('mouseenter', id, (e) => {
+            let coordinates = centerOfMass(e.features[0]).geometry.coordinates;
+            let description = e.features[0].properties.description;
+
+            popup
+                .setLngLat(coordinates)
+                .setHTML(description)
+                .addTo(this.map);
+        });
+
+        this.map.on('mouseleave', id, () => {
+            popup.remove();
+        });
     }
     private addMarker(): void {
         new Marker()
